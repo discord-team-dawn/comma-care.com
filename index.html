@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정보부 심리 지원 센터</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <style>
+        :root {
+            --primary-color: #5865F2;       /* 디스코드 시그니처 블루/퍼플 */
+            --primary-dark: #404eed;        
+            --primary-light: #f0f2ff;       
+            --accent-color: #7c3aed;        /* 바이올렛 포인트 */
+            --bg-main: #fcfbfe;             
+            --bg-card: #ffffff;
+            --text-main: #111827;           
+            --text-muted: #6b7280;          
+            --border-color: #e5e7eb;        
+            --transition-speed: 0.3s;
+        }
+
+        /* 🌙 다크 모드 (태그 속성과 데이터 속성 모두에 철저히 대응) */
+        html[data-theme="dark"], body[data-theme="dark"] {
+            --primary-color: #5865F2;       
+            --primary-dark: #404eed;        
+            --primary-light: #1a1c2e;       
+            --accent-color: #a78bfa;
+            --bg-main: #111214;             /* 디스코드 다크 배경색 */
+            --bg-card: #1e1f22;             /* 디스코드 카드 배경색 */
+            --text-main: #f2f3f5;
+            --text-muted: #949ba4;
+            --border-color: #2b2d31;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.7;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        /* 상단 네비게이션 바 */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            background-color: rgba(252, 251, 254, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 8%;
+            z-index: 1000;
+            transition: background-color var(--transition-speed), border-color var(--transition-speed);
+        }
+
+        html[data-theme="dark"] .navbar, body[data-theme="dark"] .navbar { 
+            background-color: rgba(30, 31, 34, 0.85);
+        }
+        
+        .navbar .logo { 
+            font-size: 1.25rem;
+            font-weight: 800; 
+            color: var(--text-main); 
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
+        }
+        .navbar .logo img {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .navbar .nav-links { display: flex; list-style: none; gap: 25px; align-items: center; }
+        .navbar .nav-links a { font-size: 1rem; font-weight: 600; color: var(--text-main); position: relative; padding: 4px 0; transition: color var(--transition-speed); }
+        .navbar .nav-links a:hover, .navbar .nav-links a.active { color: var(--primary-color); }
+        
+        .nav-buttons { display: flex; gap: 10px; align-items: center; }
+
+        .theme-toggle { 
+            background: none;
+            border: 1px solid var(--border-color); 
+            padding: 8px 14px; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            color: var(--text-main); 
+            font-size: 0.9rem; 
+            font-weight: 600; 
+            display: flex;
+            align-items: center; 
+            gap: 6px; 
+            transition: all var(--transition-speed); 
+        }
+        .theme-toggle:hover { background-color: var(--primary-light); border-color: var(--primary-color); }
+
+        /* 메인 대문 (Hero) 섹션 */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 140px 5% 60px 5%;
+            background: radial-gradient(circle at top right, rgba(88, 101, 242, 0.12) 0%, transparent 60%),
+                        radial-gradient(circle at bottom left, rgba(124, 58, 237, 0.06) 0%, transparent 50%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-badge {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            border: 1px solid rgba(88, 101, 242, 0.15);
+            animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .hero h1 { font-size: 3.5rem; font-weight: 800; line-height: 1.3; margin-bottom: 24px; letter-spacing: -1px; animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
+        .hero h1 span { color: var(--primary-color); text-shadow: 0 2px 10px rgba(88, 101, 242, 0.1); }
+        .hero p { font-size: 1.25rem; color: var(--text-muted); max-width: 650px; margin-bottom: 40px; animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both; }
+
+        .btn-group { display: flex; gap: 16px; animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both; }
+        .btn { display: inline-flex; align-items: center; gap: 10px; padding: 16px 36px; border-radius: 12px; font-size: 1.1rem; font-weight: 700; transition: all var(--transition-speed); cursor: pointer; border: none; }
+        .btn-discord { background-color: var(--primary-color); color: white; box-shadow: 0 10px 25px rgba(88, 101, 242, 0.25); }
+        .btn-discord:hover { background-color: var(--primary-dark); transform: translateY(-3px); box-shadow: 0 15px 30px rgba(88, 101, 242, 0.4); }
+        .btn-secondary { background-color: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background-color: var(--primary-light); border-color: var(--primary-color); transform: translateY(-3px); }
+
+        /* 실시간 현황판 */
+        .status-container {
+            margin-top: 50px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 700px;
+        }
+
+        .status-tracker-box {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 14px 28px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(88, 101, 242, 0.03);
+            transition: all var(--transition-speed);
+        }
+
+        .status-label { font-size: 1rem; font-weight: 600; color: var(--text-main); }
+        .status-label strong { color: var(--primary-color); font-size: 1.15rem; }
+        .status-dot { width: 10px; height: 10px; background-color: var(--primary-color); border-radius: 50%; position: relative; }
+        .status-dot::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: inherit; border-radius: 50%; animation: pulse 2s infinite; }
+        .status-dot.info { background-color: var(--accent-color); }
+
+        /* 만족도 대시보드 */
+        .satisfaction-box {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 30px 50px;
+            border-radius: 24px;
+            margin-top: 40px;
+            box-shadow: 0 15px 35px rgba(88, 101, 242, 0.3);
+            text-align: center;
+        }
+        .satisfaction-box h3 { font-size: 1.1rem; opacity: 0.9; font-weight: 600; margin-bottom: 8px; letter-spacing: 1px;}
+        .satisfaction-score { font-size: 3rem; font-weight: 900; letter-spacing: -1px; }
+        .satisfaction-score span { font-size: 1.4rem; opacity: 0.7; font-weight: 500; }
+        .satisfaction-date { font-size: 0.8rem; opacity: 0.6; margin-top: 8px; }
+
+        /* 섹션 레이아웃 기본 */
+        .section { padding: 100px 8%; max-width: 1400px; margin: 0 auto; }
+        .section-header { text-align: center; max-width: 700px; margin: 0 auto 40px auto; }
+        .section-header h2 { font-size: 2.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 16px; }
+        .section-header p { color: var(--text-muted); font-size: 1.1rem; }
+
+        /* 📋 공지사항 섹션 스타일 */
+        .notice-container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+        .notice-card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px 30px; transition: all var(--transition-speed); cursor: pointer; }
+        .notice-card:hover { border-color: var(--primary-color); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(88, 101, 242, 0.04); }
+        .notice-header-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .notice-main { display: flex; flex-direction: column; gap: 6px; }
+        .notice-tag { display: inline-block; align-self: flex-start; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
+        .tag-notice { background-color: var(--primary-light); color: var(--primary-color); }
+        html[data-theme="dark"] .tag-notice { background-color: rgba(88, 101, 242, 0.15); }
+        .tag-important { background-color: #fef3c7; color: #d97706; }
+        html[data-theme="dark"] .tag-important { background-color: rgba(217, 119, 6, 0.15); color: #fbbf24; }
+        .notice-title { font-size: 1.15rem; font-weight: 700; color: var(--text-main); }
+        .notice-date { font-size: 0.9rem; color: var(--text-muted); }
+        
+        /* 공지 본문 내용 */
+        .notice-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin-top 0.3s ease; color: var(--text-muted); font-size: 1rem; border-top: 0px solid transparent; padding-top: 0; }
+        .notice-card.active .notice-content { max-height: 1000px; margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 16px; color: var(--text-main); }
+
+        /* 👥 조직도 스타일 */
+        .grid-org { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto; }
+        .member-card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 30px 20px; text-align: center; transition: all var(--transition-speed); }
+        .member-card:hover { border-color: var(--primary-color); transform: translateY(-6px); box-shadow: 0 15px 30px rgba(0,0,0,0.03); }
+        .member-avatar { width: 80px; height: 80px; background-color: var(--primary-light); border-radius: 50%; margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 2px solid var(--border-color); }
+        .member-name { font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+        .member-role { font-size: 0.85rem; font-weight: 700; color: var(--primary-color); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; background-color: var(--primary-light); display: inline-block; padding: 2px 10px; border-radius: 12px; }
+        .member-desc { font-size: 0.9rem; color: var(--text-muted); }
+
+        /* 소개 그리드 */
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); padding: 40px 35px; border-radius: 20px; transition: all var(--transition-speed); }
+        .card:hover { transform: translateY(-8px); border-color: var(--primary-color); box-shadow: 0 20px 40px rgba(88, 101, 242, 0.06); }
+        .card-icon { font-size: 2.5rem; margin-bottom: 24px; display: inline-block; }
+        .card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+        .card p { color: var(--text-muted); font-size: 1rem; }
+        .card ul { list-style: none; margin-top: 15px; }
+        .card ul li { font-size: 0.95rem; color: var(--text-main); font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+
+        /* 이용 가이드 스텝 구조 */
+        .guide-container { max-width: 900px; margin: 0 auto; }
+        .step-row { display: flex; margin-bottom: 30px; background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 30px; align-items: center; gap: 30px; transition: all var(--transition-speed); }
+        .step-row:hover { border-color: var(--primary-color); transform: scale(1.01); box-shadow: 0 10px 25px rgba(88, 101, 242, 0.04); }
+        .step-num { font-size: 2.5rem; font-weight: 900; color: var(--primary-color); opacity: 0.3; min-width: 60px; }
+        .step-content h4 { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
+        .step-content p { color: var(--text-muted); font-size: 0.95rem; }
+
+        /* 하단 푸터 */
+        .footer { background-color: #111214; color: #949ba4; padding: 60px 8%; text-align: center; border-top: 1px solid var(--border-color); }
+        .footer-brand { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: white; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.5; box-shadow: 0 0 0 0 rgba(88, 101, 242, 0.7); }
+            70% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 8px rgba(88, 101, 242, 0); }
+            100% { transform: scale(0.95); opacity: 0.5; box-shadow: 0 0 0 0 rgba(88, 101, 242, 0); }
+        }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 14px 5%; }
+            .navbar .nav-links { display: none; }
+            .hero h1 { font-size: 2.3rem; }
+            .btn-group { flex-direction: column; width: 100%; max-width: 300px; }
+            .btn { width: 100%; justify-content: center; }
+            .step-row { flex-direction: column; text-align: center; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo"><img src="2.png" alt="쉼표 로고"> 정보부 심리 지원 센터</div>
+        <ul class="nav-links">
+            <li><a href="#home" class="nav-item">홈</a></li>
+            <li><a href="#notice" class="nav-item">공지사항</a></li>
+            <li><a href="#about" class="nav-item">센터 소개</a></li>
+            <li><a href="#org" class="nav-item">조직도</a></li>
+            <li><a href="#guide" class="nav-item">이용 안내</a></li>
+        </ul>
+        <div class="nav-buttons">
+            <button class="theme-toggle" id="themeBtn">
+                <span id="themeIcon">🌙</span> <span id="themeText">다크 모드</span>
+            </button>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="hero-badge">정보부 산하 비공식 비영리 마음 지원 공간</div>
+        <h1>지친 마음에 찾아온 쉼표,<br><span>정보부 심리 지원 센터</span></h1>
+        <p>멤버분들의 고민, 걱정, 갈등을 함께 나누며 해결을 도와드립니다. 사소한 것부터 무거운 이야기까지 모두 들어드립니다.</p>
+        
+        <div class="btn-group">
+            <a href="https://discord.gg/YOUR-LINK" class="btn btn-discord" target="_blank" id="discordLink">
+                디스코드에서 무료 상담하기
+            </a>
+            <a href="#about" class="btn btn-secondary">더 알아보기</a>
+        </div>
+
+        <div class="status-container">
+            <div class="status-tracker-box">
+                <span class="status-dot"></span>
+                <span class="status-label">🔊 답변한 고민 수 : <strong id="resolvedCount">2</strong>개</span>
+            </div>
+            <div class="status-tracker-box">
+                <span class="status-dot info"></span>
+                <span class="status-label">🔊 리뷰 개수 : <strong id="reviewCount">2</strong>개</span>
+            </div>
+        </div>
+
+        <div class="satisfaction-box">
+            <h3>📈 센터 이용 만족도</h3>
+            <div class="satisfaction-score"><span id="satisfactionScore">9.5</span><span> / 10.0</span></div>
+        </div>
+    </section>
+
+    <section class="section" id="notice">
+        <div class="section-header">
+            <h2>공지사항</h2>
+            <p>카드를 클릭하면 공지의 상세 내용을 확인하실 수 있습니다.</p>
+        </div>
+        <div class="notice-container" id="noticeContainer">
+            <p style="text-align:center; color:var(--text-muted);">공지사항을 불러오는 중...</p>
+        </div>
+    </section>
+
+    <section class="section" id="about">
+        <div class="section-header">
+            <h2>운영 방침 및 활동 시간 안내</h2>
+            <p>상담 내용은 외부에 절대 공개되지 않으며, 철저한 비밀 보장을 원칙으로 합니다.</p>
+        </div>
+        
+        <div class="grid-3">
+            <div class="card">
+                <div class="card-icon">🕒</div>
+                <h3>상담 활동 기간</h3>
+                <p>평균적인 스케줄 시간대이며 상담사별 일정에 따라 소폭 상이할 수 있습니다.</p>
+                <ul>
+                    <li>🔮 평일 : 오후 5시 ~ 오전 12시</li>
+                    <li>🔮 주말 : 오전 8시 ~ 오전 1시</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-icon">🔒</div>
+                <h3>안전성 및 비용 안내</h3>
+                <p>본 센터는 비영리 목적으로 운영되므로 <strong>모든 상담 과정은 전액 무료</strong>입니다.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">⚠️</div>
+                <h3>이용 주의사항</h3>
+                <p>만약 상담사가 불쾌해하는 욕설/비하 내용 등이 포함될 경우 <strong>블랙리스트에 등재</strong>됩니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="org">
+        <div class="section-header">
+            <h2>상담 센터 조직도</h2>
+            <p>멤버분들의 마음에 따뜻한 쉼표를 찍어드리는 운영진 및 상담사 명단입니다.</p>
+        </div>
+        <div class="grid-org">
+            <div class="member-card">
+                <div class="member-avatar">👑</div>
+                <div class="member-name">스태프</div>
+                <div class="member-role">Staff</div>
+                <div class="member-desc">센터 총괄 및 보안/민원 관리 총책임자</div>
+            </div>
+            <div class="member-card">
+                <div class="member-avatar">✨</div>
+                <div class="member-name">상담사 A</div>
+                <div class="member-role">Counselor</div>
+                <div class="member-desc">학업, 진로, 일상 고민 1:1 집중 케어</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="guide">
+        <div class="section-header">
+            <h2>상담 참여 프로세스</h2>
+            <p>디스코드 서버 시스템에 맞춰 설계된 간편한 참여 프로세스입니다.</p>
+        </div>
+
+        <div class="guide-container">
+            <div class="step-row">
+                <div class="step-num">01</div>
+                <div class="step-content">
+                    <h4>고민상담_신청 채널로 이동</h4>
+                    <p>서버 왼쪽 채널 목록에서 <strong>💙 | 고민상담_신청</strong> 채널을 클릭하여 입장해 주세요.</p>
+                </div>
+            </div>
+            <div class="step-row">
+                <div class="step-num">02</div>
+                <div class="step-content">
+                    <h4>[고민 쓰러가기] 버튼 클릭</h4>
+                    <p>안내 메시지 하단에 있는 파란색 <strong>[고민 쓰러가기]</strong> 버튼을 누르면 DM으로 질문 폼이 발송됩니다.</p>
+                </div>
+            </div>
+            <div class="step-row">
+                <div class="step-num">03</div>
+                <div class="step-content">
+                    <h4>상담 종료 후 후기 작성 유의사항</h4>
+                    <p>상담 종료 시 반드시 <strong>[모두 읽음]</strong> 버튼을 눌러주셔야 정상적으로 후기 작성이 가능합니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-brand">정보부 심리 지원 센터</div>
+        <p>© 2026 정보부 심리 지원 센터. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // API 기본 주소 설정 (FastAPI 서버 포트)
+        const API_BASE = "http://localhost:5000"; 
+
+        // 1. 다크모드 인식 로직 (기존 유지)
+        const themeBtn = document.getElementById('themeBtn');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('saved-theme', theme);
+            
+            if (theme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = '라이트 모드';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = '다크 모드';
+            }
+        }
+
+        const savedTheme = localStorage.getItem('saved-theme');
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const initialTheme = savedTheme ? savedTheme : (systemDark ? 'dark' : 'light');
+        applyTheme(initialTheme);
+
+        themeBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const nextTheme = current === 'dark' ? 'light' : 'dark';
+            applyTheme(nextTheme);
+        });
+
+        // 2. 🟢 [핵심] FastAPI 백엔드 리얼타임 데이터 로드 및 렌더링 시스템
+        async function fetchRealtimeDashboard() {
+            try {
+                const res = await fetch(`${API_BASE}/api/status`);
+                const data = await res.json();
+                
+                // 통계 및 만족도 데이터 세팅
+                document.getElementById("resolvedCount").innerText = data.status.resolvedCount ?? 0;
+                document.getElementById("reviewCount").innerText = data.status.reviewCount ?? 0;
+                document.getElementById("satisfactionScore").innerText = data.status.satisfactionScore ?? "0.0";
+
+                // 공지사항 컨테이너 매핑 및 기존 카드 UI 출력
+                const container = document.getElementById('noticeContainer');
+                container.innerHTML = '';
+
+                if(!data.notices || data.notices.length === 0) {
+                    container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">등록된 공지사항이 없습니다.</p>';
+                    return;
+                }
+
+                data.notices.forEach(notice => {
+                    const card = document.createElement('div');
+                    card.className = 'notice-card';
+                    
+                    const tagClass = notice.category === '중요' ? 'tag-important' : 'tag-notice';
+                    const tagLabel = notice.category === '중요' ? '중요 🔥' : '안내';
+
+                    card.innerHTML = `
+                        <div class="notice-header-row">
+                            <div class="notice-main">
+                                <span class="notice-tag ${tagClass}">${tagLabel}</span>
+                                <div class="notice-title">${notice.title}</div>
+                            </div>
+                            <div class="notice-date">${notice.date}</div>
+                        </div>
+                        <div class="notice-content">${notice.content.replace(/\n/g, '<br>')}</div>
+                    `;
+
+                    // 아코디언 클릭 액션 활성화
+                    card.addEventListener('click', () => {
+                        card.classList.toggle('active');
+                    });
+
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                console.error("데이터 연동 실패:", err);
+            }
+        }
+
+        // 초기 화면 로딩 시 데이터 즉시 반영
+        window.addEventListener('DOMContentLoaded', fetchRealtimeDashboard);
+
+        // 디스코드 기본 예외 링크 제어
+        const discordLink = document.getElementById('discordLink');
+        discordLink.addEventListener('click', (e) => {
+            if(discordLink.getAttribute('href').includes('https://discord.gg/kYm6qbp2QF')) {
+                e.preventDefault();
+                alert('디스코드 주소 세팅이 필요합니다. 코드 내부의 YOUR-LINK 부분을 실제 주소로 고쳐주세요.');
+            }
+        });
+    </script>
+</body>
+</html>
