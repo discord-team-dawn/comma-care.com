@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>블로그</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body { background: #121212; color: #eee; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        /* 카드 디자인: 오른쪽 이미지 배치 */
+        .post-card { background: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 20px; cursor: pointer; display: flex; align-items: center; gap: 20px; }
+        .thumb { width: 120px; height: 120px; border-radius: 8px; object-fit: cover; }
+        /* 스포일러 기능 */
+        .spoiler { background: #444; color: transparent; cursor: pointer; border-radius: 4px; padding: 0 4px; }
+        .spoiler:hover { background: #666; }
+        .spoiler.revealed { background: #222; color: #eee; }
+        /* 이미지 슬라이더 */
+        .img-grid { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 20px; }
+        .post-img { height: 200px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <h1>블로그</h1>
+    <div id="contentArea"></div>
+</div>
+
+<script>
+    let blogData = [];
+    fetch('data.json').then(res => res.json()).then(data => {
+        blogData = data.blogs;
+        showList();
+    });
+
+    function showList() {
+        document.getElementById('contentArea').innerHTML = blogData.map(b => `
+            <div class="post-card" onclick="showDetail(${b.id})">
+                <div style="flex: 1">
+                    <h2>${b.title}</h2>
+                    <p>${b.summary}</p>
+                    <small>작성자: ${b.author} | ${b.date}</small>
+                </div>
+                ${b.images?.length ? `<img src="${b.images[0]}" class="thumb">` : ''}
+            </div>
+        `).join('');
+    }
+
+    function showDetail(id) {
+        const b = blogData.find(x => x.id === id);
+        // 스포일러 처리 함수
+        let content = marked.parse(b.content || '').replace(/\|\|(.*?)\|\|/g, '<span class="spoiler" onclick="this.classList.toggle(\'revealed\')">$1</span>');
+        
+        document.getElementById('contentArea').innerHTML = `
+            <button class="btn-back" onclick="showList()" style="padding:10px; cursor:pointer;">← 목록으로</button>
+            <div class="post-card" style="display:block;">
+                <h1>${b.title}</h1>
+                <div class="img-grid">
+                    ${(b.images || []).map((img, i) => `<img src="${img}" class="post-img" alt="사진 ${i+1}">`).join('')}
+                </div>
+                <div class="content">${content}</div>
+                <hr>
+                <small>작성자: ${b.author} | ${b.date}</small>
+            </div>
+        `;
+    }
+</script>
+</body>
+</html>
