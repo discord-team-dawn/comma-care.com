@@ -273,14 +273,16 @@
 </head>
 <body>
 
+    <body>
     <nav class="navbar">
         <div class="logo"><img src="2.png" alt="쉼표 로고"> 정보부/심리 지원 센터</div>
         <ul class="nav-links">
             <li><a href="#home" class="nav-item">홈</a></li>
-            <li><a href="#notice" class="nav-item">공지사항</a></li>
+            <li><a href="notice_list.html" class="nav-item">공지사항</a></li>
             <li><a href="#about" class="nav-item">센터 소개</a></li>
             <li><a href="#org" class="nav-item">조직도</a></li>
             <li><a href="#guide" class="nav-item">이용 안내</a></li>
+            <li><a href="blog.html" class="nav-item" style="color: var(--accent-color);">블로그</a></li>
         </ul>
         <div class="nav-buttons">
             <button class="theme-toggle" id="themeBtn">
@@ -319,14 +321,13 @@
     </section>
 
     <section class="section" id="notice">
-        <div class="section-header">
-            <h2>공지사항</h2>
-            <p>카드를 클릭하면 공지의 상세 내용을 확인하실 수 있습니다.</p>
-        </div>
-        <div class="notice-container" id="noticeContainer">
-            <p style="text-align:center; color:var(--text-muted);">공지사항을 불러오는 중...</p>
-        </div>
-    </section>
+    <div class="section-header">
+        <h2>공지사항</h2>
+        <p>센터의 최신 소식을 확인하세요.</p>
+        <br>
+        <a href="notice_list.html" class="btn btn-secondary">공지사항 전체 확인하기</a>
+    </div>
+</section>
 
     <section class="section" id="about">
         <div class="section-header">
