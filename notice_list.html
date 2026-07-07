@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>공지사항</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body { background: #121212; color: #eee; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .notice-card { background: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 20px; cursor: pointer; }
+        /* 카테고리 스타일 */
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .badge-important { background: #ff4757; color: white; }
+        .badge-normal { background: #2ed573; color: white; }
+        /* 스포일러 */
+        .spoiler { background: #444; color: transparent; cursor: pointer; }
+        .spoiler.revealed { background: #222; color: #eee; }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <h1>공지사항</h1>
+    <div id="noticeArea"></div>
+</div>
+
+<script>
+    fetch('notice.json').then(res => res.json()).then(data => {
+        const area = document.getElementById('noticeArea');
+        
+        function showList() {
+            area.innerHTML = data.notices.map(n => `
+                <div class="notice-card" onclick="showDetail(${n.id})">
+                    <span class="badge ${n.category === '중요' ? 'badge-important' : 'badge-normal'}">${n.category}</span>
+                    <h2>${n.title}</h2>
+                    <p>${n.summary}</p>
+                    <small>${n.date} | ${n.author}</small>
+                </div>
+            `).join('');
+        }
+
+        window.showDetail = (id) => {
+            const n = data.notices.find(x => x.id === id);
+            let content = marked.parse(n.content || '').replace(/\|\|(.*?)\|\|/g, '<span class="spoiler" onclick="this.classList.toggle(\'revealed\')">$1</span>');
+            area.innerHTML = `
+                <button onclick="showList()">← 목록으로</button>
+                <div class="notice-card" style="cursor:default;">
+                    <span class="badge ${n.category === '중요' ? 'badge-important' : 'badge-normal'}">${n.category}</span>
+                    <h1>${n.title}</h1>
+                    ${(n.images || []).map(img => `<img src="${img}" style="width:100%; border-radius:8px;">`).join('')}
+                    <div>${content}</div>
+                    <hr>
+                    <small>작성자: ${n.author} | ${n.date}</small>
+                </div>
+            `;
+        };
+        showList();
+    });
+</script>
+</body>
+</html>
