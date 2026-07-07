@@ -3,58 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <title>공지사항</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        body { background: #121212; color: #eee; font-family: sans-serif; padding: 20px; }
+        /* 폰트 적용 및 전체 테마 */
+        body { font-family: 'Pretendard', sans-serif; background: #121212; color: #eee; padding: 20px; line-height: 1.6; }
         .container { max-width: 800px; margin: 0 auto; }
-        .notice-card { background: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 20px; cursor: pointer; }
-        /* 카테고리 스타일 */
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        
+        /* 카드 디자인 */
+        .notice-card { background: #1e1e1e; padding: 25px; border-radius: 16px; margin-bottom: 20px; border: 1px solid #333; }
+        .clickable { cursor: pointer; transition: 0.3s; }
+        .clickable:hover { border-color: #555; background: #252525; }
+
+        /* 버튼 */
+        .btn-back { padding: 10px 20px; cursor: pointer; background: #333; color: white; border: none; border-radius: 8px; margin-bottom: 20px; font-weight: bold; }
+        
+        /* 뱃지 */
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
         .badge-important { background: #ff4757; color: white; }
         .badge-normal { background: #2ed573; color: white; }
-        /* 스포일러 */
-        .spoiler { background: #444; color: transparent; cursor: pointer; }
+
+        /* 사진 및 본문 */
+        .img-grid { display: flex; gap: 15px; overflow-x: auto; margin-top: 15px; }
+        .spoiler { background: #444; color: transparent; cursor: pointer; padding: 0 4px; border-radius: 4px; }
         .spoiler.revealed { background: #222; color: #eee; }
     </style>
 </head>
 <body>
+
 <div class="container" id="app">
     <h1>공지사항</h1>
     <div id="noticeArea"></div>
 </div>
 
 <script>
-    fetch('notice.json').then(res => res.json()).then(data => {
-        const area = document.getElementById('noticeArea');
-        
-        function showList() {
-            area.innerHTML = data.notices.map(n => `
-                <div class="notice-card" onclick="showDetail(${n.id})">
-                    <span class="badge ${n.category === '중요' ? 'badge-important' : 'badge-normal'}">${n.category}</span>
-                    <h2>${n.title}</h2>
-                    <p>${n.summary}</p>
-                    <small>${n.date} | ${n.author}</small>
-                </div>
-            `).join('');
+    // 1. 데이터 로드 및 초기화
+    async function loadNotices() {
+        try {
+            const res = await fetch('notice.json');
+            const data = await res.json();
+            renderList(data.notices);
+        } catch (e) {
+            document.getElementById('noticeArea').innerHTML = "공지사항을 불러오는 중 오류가 발생했습니다.";
         }
+    }
 
-        window.showDetail = (id) => {
+    // 2. 리스트 출력
+    function renderList(notices) {
+        const area = document.getElementById('noticeArea');
+        area.innerHTML = notices.map(n => `
+            <div class="notice-card clickable" onclick="showDetail(${n.id})">
+                <span class="badge ${n.category === '중요' ? 'badge-important' : 'badge-normal'}">${n.category}</span>
+                <h2 style="margin: 10px 0;">${n.title}</h2>
+                <p style="color: #bbb;">${n.summary}</p>
+                <small style="color: #777;">${n.date} | ${n.author}</small>
+            </div>
+        `).join('');
+    }
+
+    // 3. 상세 페이지 출력
+    function showDetail(id) {
+        fetch('notice.json').then(res => res.json()).then(data => {
             const n = data.notices.find(x => x.id === id);
-            let content = marked.parse(n.content || '').replace(/\|\|(.*?)\|\|/g, '<span class="spoiler" onclick="this.classList.toggle(\'revealed\')">$1</span>');
-            area.innerHTML = `
-                <button onclick="showList()">← 목록으로</button>
-                <div class="notice-card" style="cursor:default;">
+            const content = marked.parse(n.content || '').replace(/\|\|(.*?)\|\|/g, '<span class="spoiler" onclick="this.classList.toggle(\'revealed\')">$1</span>');
+            
+            document.getElementById('noticeArea').innerHTML = `
+                <button class="btn-back" onclick="history.back()">← 뒤로 가기</button>
+                <div class="notice-card">
                     <span class="badge ${n.category === '중요' ? 'badge-important' : 'badge-normal'}">${n.category}</span>
-                    <h1>${n.title}</h1>
-                    ${(n.images || []).map(img => `<img src="${img}" style="width:100%; border-radius:8px;">`).join('')}
-                    <div>${content}</div>
-                    <hr>
+                    <h1 style="margin: 10px 0;">${n.title}</h1>
+                    <div class="img-grid">
+                        ${(n.images || []).map((img, i) => `
+                            <div style="flex-shrink:0;">
+                                <img src="${img}" style="height:150px; border-radius:8px; display:block;">
+                                <small style="display:block; margin-top:5px; color:#888;">사진 ${i+1}</small>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="margin-top:20px;">${content}</div>
+                    <hr style="border:0; border-top:1px solid #444; margin: 30px 0;">
                     <small>작성자: ${n.author} | ${n.date}</small>
                 </div>
             `;
-        };
-        showList();
-    });
+        });
+    }
+
+    loadNotices();
 </script>
 </body>
 </html>
