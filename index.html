@@ -306,17 +306,17 @@
         <div class="status-container">
             <div class="status-tracker-box">
                 <span class="status-dot"></span>
-                <span class="status-label">🔊 답변한 고민 수 : <strong id="resolvedCount">4</strong>개</span>
+                <span class="status-label">🔊 답변한 고민 수 : <strong id="resolvedCount">6</strong>개</span>
             </div>
             <div class="status-tracker-box">
                 <span class="status-dot info"></span>
-                <span class="status-label">🔊 리뷰 개수 : <strong id="reviewCount">4</strong>개</span>
+                <span class="status-label">🔊 리뷰 개수 : <strong id="reviewCount">6</strong>개</span>
             </div>
         </div>
 
         <div class="satisfaction-box">
             <h3>📈 센터 이용 만족도</h3>
-            <div class="satisfaction-score"><span id="satisfactionScore">9.9</span><span> / 10.0</span></div>
+            <div class="satisfaction-score"><span id="satisfactionScore">8.7</span><span> / 10.0</span></div>
         </div>
     </section>
 
@@ -458,34 +458,7 @@
                 // 통계 및 만족도 데이터 세팅
                 document.getElementById("resolvedCount").innerText = data.status.resolvedCount ?? 0;
                 document.getElementById("reviewCount").innerText = data.status.reviewCount ?? 0;
-                document.getElementById("satisfactionScore").innerText = data.status.satisfactionScore ?? "0.0";
-
-                // 공지사항 컨테이너 매핑 및 기존 카드 UI 출력
-                const container = document.getElementById('noticeContainer');
-                container.innerHTML = '';
-
-                if(!data.notices || data.notices.length === 0) {
-                    container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">등록된 공지사항이 없습니다.</p>';
-                    return;
-                }
-
-                data.notices.forEach(notice => {
-                    const card = document.createElement('div');
-                    card.className = 'notice-card';
-                    
-                    const tagClass = notice.category === '중요' ? 'tag-important' : 'tag-notice';
-                    const tagLabel = notice.category === '중요' ? '중요 🔥' : '안내';
-
-                    card.innerHTML = `
-                        <div class="notice-header-row">
-                            <div class="notice-main">
-                                <span class="notice-tag ${tagClass}">${tagLabel}</span>
-                                <div class="notice-title">${notice.title}</div>
-                            </div>
-                            <div class="notice-date">${notice.date}</div>
-                        </div>
-                        <div class="notice-content">${notice.content.replace(/\n/g, '<br>')}</div>
-                    `;
+                document.getElementById("satisfactionScore").innerText = data.status.satisfactionScore ?? "0.0"
 
                     // 아코디언 클릭 액션 활성화
                     card.addEventListener('click', () => {
