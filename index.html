@@ -416,74 +416,62 @@
         <p>© 2026 정보부 심리 지원 센터. All rights reserved.</p>
     </footer>
 
-    <script>
-        // API 기본 주소 설정 (FastAPI 서버 포트)
-        const API_BASE = "http://localhost:5000"; 
+<script>
+    const API_BASE = "http://localhost:5000"; 
 
-        // 1. 다크모드 인식 로직 (기존 유지)
-        const themeBtn = document.getElementById('themeBtn');
-        const themeIcon = document.getElementById('themeIcon');
-        const themeText = document.getElementById('themeText');
+    // 1. 다크모드 로직
+    const themeBtn = document.getElementById('themeBtn');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
 
-        function applyTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            document.body.setAttribute('data-theme', theme);
-            localStorage.setItem('saved-theme', theme);
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        document.body.setAttribute('data-theme', theme);
+        localStorage.setItem('saved-theme', theme);
+        
+        if (theme === 'dark') {
+            themeIcon.textContent = '☀️';
+            themeText.textContent = '라이트 모드';
+        } else {
+            themeIcon.textContent = '🌙';
+            themeText.textContent = '다크 모드';
+        }
+    }
+
+    const savedTheme = localStorage.getItem('saved-theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme ? savedTheme : (systemDark ? 'dark' : 'light');
+    applyTheme(initialTheme);
+
+    themeBtn.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme') || 'light';
+        const nextTheme = current === 'dark' ? 'light' : 'dark';
+        applyTheme(nextTheme);
+    });
+
+    // 2. 리얼타임 데이터 로드 및 렌더링
+    async function fetchRealtimeDashboard() {
+        try {
+            const res = await fetch(`${API_BASE}/api/status`);
+            const data = await res.json();
             
-            if (theme === 'dark') {
-                themeIcon.textContent = '☀️';
-                themeText.textContent = '라이트 모드';
-            } else {
-                themeIcon.textContent = '🌙';
-                themeText.textContent = '다크 모드';
-            }
+            // 통계 데이터 업데이트
+            document.getElementById("resolvedCount").innerText = data.status.resolvedCount ?? 0;
+            document.getElementById("reviewCount").innerText = data.status.reviewCount ?? 0;
+            document.getElementById("satisfactionScore").innerText = data.status.satisfactionScore ?? "0.0";
+            
+        } catch (err) {
+            console.error("데이터 연동 실패:", err);
         }
+    }
 
-        const savedTheme = localStorage.getItem('saved-theme');
-        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const initialTheme = savedTheme ? savedTheme : (systemDark ? 'dark' : 'light');
-        applyTheme(initialTheme);
+    window.addEventListener('DOMContentLoaded', fetchRealtimeDashboard);
 
-        themeBtn.addEventListener('click', () => {
-            const current = document.documentElement.getAttribute('data-theme') || 'light';
-            const nextTheme = current === 'dark' ? 'light' : 'dark';
-            applyTheme(nextTheme);
+    // 3. 디스코드 링크 클릭 로직
+    const discordLink = document.getElementById('discordLink'); // ID 확인 필요
+    if (discordLink) {
+        discordLink.addEventListener('click', (e) => {
+            console.log("버튼이 클릭되어 디스코드 링크로 이동합니다.");
         });
-
-        // 2. 🟢 [핵심] FastAPI 백엔드 리얼타임 데이터 로드 및 렌더링 시스템
-        async function fetchRealtimeDashboard() {
-            try {
-                const res = await fetch(`${API_BASE}/api/status`);
-                const data = await res.json();
-                
-                // 통계 및 만족도 데이터 세팅
-                document.getElementById("resolvedCount").innerText = data.status.resolvedCount ?? 0;
-                document.getElementById("reviewCount").innerText = data.status.reviewCount ?? 0;
-                document.getElementById("satisfactionScore").innerText = data.status.satisfactionScore ?? "0.0"
-
-                    // 아코디언 클릭 액션 활성화
-                    card.addEventListener('click', () => {
-                        card.classList.toggle('active');
-                    });
-
-                    container.appendChild(card);
-                });
-            } catch (err) {
-                console.error("데이터 연동 실패:", err);
-            }
-        }
-
-        // 초기 화면 로딩 시 데이터 즉시 반영
-        window.addEventListener('DOMContentLoaded', fetchRealtimeDashboard);
+    }
 </script>
-    
-    <script>
-
-        if (discordLink) {
-            discordLink.addEventListener('click', (e) => {
-                console.log("버튼이 클릭되어 디스코드 링크로 이동합니다.");
-            });
-        }
-    </script>
-    </body>
-</html>
